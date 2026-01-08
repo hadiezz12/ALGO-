@@ -1,266 +1,160 @@
- README – Manipulation et traitement d’automates finis en Python
- Présentation générale
-
-Ce fichier Python implémente plusieurs opérations fondamentales sur les automates finis, aussi bien déterministes (AFD) que non déterministes (AFN), avec ou sans transitions epsilon (ε).
-
-Il permet notamment de :
-
-représenter un automate sous forme matricielle
-
-afficher ses transitions
-
-tester l’acceptation d’un mot
-
-vérifier et rendre un automate complet
-
-calculer le complémentaire d’un automate
-
-déterminiser un automate non déterministe
-
-supprimer les transitions epsilon
-
-enchaîner ces transformations de manière robuste
-
-Le code est structuré de façon progressive, avec des exemples d’exécution intégrés pour illustrer chaque concept 
-
-automathwil
-
-.
-
- Représentation des automates
- États et symboles
-
-Les états sont représentés par des entiers : 0, 1, 2, ...
-
-L’état initial est toujours l’état 0
-
-Les symboles de l’alphabet sont représentés par leurs indices : 0, 1, 2, ...
-
- Valeur spéciale -1
-notDefined = -1
-
-
-Cette constante représente :
-
-l’absence de transition
-
-une transition impossible
-
-une case vide dans la matrice de transition
-
- Structure d’un automate
-
-Un automate est représenté par :
-
- Une matrice de transition
-automate = [
-    [3, 1],
-    [1, 2],
-    [-1, -1],
-    [3, -1]
-]
-
-
-Chaque ligne = un état
-
-Chaque colonne = un symbole
-
-matrice[i][j] = k signifie :
-depuis l’état qi, avec le symbole aj, on va vers l’état qk
-
- Une liste d’états finaux
-finaux = [2, 3]
-
-🖨️ Affichage des transitions
-Fonction : afficheAutomate
-def afficheAutomate(matrice):
-
- Objectif
-
-Afficher toutes les transitions définies de l’automate sous forme lisible.
-
- Fonctionnement
-
-Parcourt chaque état qi
-
-Parcourt chaque symbole aj
-
-Ignore les transitions -1
-
-Affiche :
-
-qi ---aj---> qk
-
- Exemple de sortie
-q0---a0--->q3
-q0---a1--->q1
-
-
-Cette fonction est purement informative, sans effet sur l’automate.
-
- Test d’acceptation d’un mot
-Fonction : accepter
-def accepter(matrice, mot, finaux):
-
- Objectif
-
-Déterminer si un mot est accepté par l’automate.
-
-📥 Entrées
-
-matrice : matrice de transitions
-
-mot : liste de symboles (ex : [0,1,0,2])
-
-finaux : états finaux
-
-Algorithme
-
-Démarre à l’état initial 0
-
-Pour chaque symbole du mot :
-
-suit la transition correspondante
-
-si -1 → rejet immédiat
-
-À la fin :
-
-accepte si l’état final appartient à finaux
-
- Exemple
-print(accepter(m,[0,0,1,0,2,2,2,2],finaux))
-
-
-Retourne True ou False.
-
- Vérification de complétude
-Fonction : estComplet
-def estComplet(automate):
-
- Objectif
-
-Vérifier si l’automate est complet, c’est-à-dire :
-
-chaque état possède une transition définie pour chaque symbole
-
- Principe
-
-Si une seule case vaut -1, l’automate n’est pas complet
-
-Sinon → complet
-
- Complétion d’un automate
-Fonction : Complet
-def Complet(automate):
-
- Objectif
-
-Transformer un automate incomplet en automate complet
-
- Méthode
-
-Ajout d’un état poubelle
-
-Toutes les transitions manquantes pointent vers cet état
-
-L’état poubelle boucle sur lui-même
-
- Cette fonction modifie l’automate en place
-
- Automate complémentaire
-Fonction : Complementaire
-def Complementaire(automate):
-
- Objectif
-
-Construire l’automate du langage complémentaire
-
- Règle fondamentale
-
-Les états finaux deviennent non finaux
-
-Les états non finaux deviennent finaux
-
- Précondition
-
-L’automate doit être complet
- sinon il est complété automatiquement avant transformation
-
- Déterminisation (AFN → AFD)
-Fonction : determiniser
-def determiniser(automate):
-
- Objectif
-
-Transformer un automate non déterministe en automate déterministe
-
- Principe théorique
-
-Chaque état du DFA est un ensemble d’états du NFA
-
-Représenté par un frozenset
-
-On applique la construction par sous-ensembles
-
- Fonctionnement détaillé
-
-État initial : {0}
-
-Pour chaque ensemble d’états :
-
-pour chaque symbole :
-
-union des transitions possibles
-
-Création dynamique de nouveaux états
-
-Un état est final si au moins un état final du NFA est inclus
-
- Sortie
-{
-  "matrice": [...],
-  "finaux": [...],
-  "initial": [0]
-}
-
-ε Suppression des transitions epsilon
-Fonction principale
-supprimer_toutes_transitions_epsilon(automate, eps_index)
-
- Objectif
-
-Éliminer toutes les transitions ε d’un automate non déterministe.
-
- Concepts clés
-🔹 ε-transition
-
-Transition qui ne consomme aucun symbole.
-
-🔹 Fermeture ε
-
-Ensemble de tous les états atteignables sans lire de symbole.
-
- Algorithme
-Pour chaque état q :
-
-Calcul de la fermeture ε
-
-Copie de toutes les transitions sortantes non-ε
-
-Mise à jour des états finaux
-
-Suppression définitive des transitions ε
-
-La suppression est répétée jusqu’à disparition totale.
-
- Bloc de démonstration (__main__)
-
-Le fichier contient plusieurs tests automatiques :
-
- Suppression des ε-transitions
-demo = {...}
-supprimer_toutes_transitions_epsilon(demo, 2)
-
-✔️ Déterminisation d’un automate non déterministe
-print(determiniser(automateND))
+# Automates (automathwil.py)
+
+Ce dépôt contient un ensemble de fonctions Python pour manipuler des automates finis (DFA/NFA), réaliser des opérations classiques (déterminisation, élimination d'epsilons, produit, concaténation, nettoyage, etc.) et proposer une interface de menu pour tester ces fonctions.
+
+## Objectif du projet
+Ce projet vise à fournir un ensemble d'outils pour manipuler, transformer et analyser des automates finis (déterministes et non-déterministes) en Python. Il est adapté pour l'apprentissage, la démonstration et l'expérimentation sur les automates.
+
+## Fichier principal
+- `automathwil.py` : implémente les structures et algorithmes pour travailler avec des automates. Il fournit :
+
+### Principales fonctions et explications
+
+#### 1. Affichage des transitions
+- `afficheAutomate(matrice)` : Affiche les transitions d'un automate sous forme de matrice (DFA). Chaque ligne représente un état, chaque colonne un symbole. Les transitions sont affichées sous la forme `q<i> ---a<j>---> q<destination>`.
+- `afficher_transitions_dict(transitions)` : Affiche les transitions d'un automate sous forme de dictionnaire (NFA ou epsilon). Les clés sont des tuples `(état, symbole)` et les valeurs des listes d'états cibles.
+
+#### 2. Test d'acceptation
+- `accepter(matrice, mot, finaux)` : Vérifie si un mot (liste d'entiers représentant les symboles) est accepté par un automate déterministe. Parcourt le mot symbole par symbole, suit les transitions, et vérifie si l'état final atteint est dans la liste des états finaux.
+
+#### 3. Vérification et complétion
+- `estComplet(automate)` : Vérifie si toutes les transitions sont définies (pas de `-1` dans la matrice). Retourne `True` si l'automate est complet.
+- `Complet(automate)` : Rend l'automate complet en ajoutant un état poubelle et en redirigeant les transitions manquantes vers cet état.
+
+#### 4. Déterminisation
+- `determiniser(automate)` : Transforme un automate non-déterministe (NFA) en automate déterministe (DFA) en utilisant l'algorithme des ensembles d'états. Les nouveaux états sont des ensembles d'états originaux, renommés pour la lisibilité.
+
+#### 5. Élimination des transitions epsilon
+- `eliminer_transitions_epsilon(automate, epsilon_symbol="EPS")` : Supprime les transitions epsilon (EPS) en dupliquant les transitions sortantes et en recalculant les états finaux. Utilise la fermeture epsilon pour chaque état.
+
+#### 6. Concaténation
+- `concatenation(automate1, automate2)` : Crée un automate qui accepte la concaténation des langages des deux automates. Combine les matrices, décale les indices, et ajoute des transitions epsilon des états finaux du premier vers l'état initial du second.
+
+#### 7. Nettoyage
+- `nettoyer(automate)` : Supprime les états inutiles (inaccessibles ou ne menant à aucun état final). Conserve seulement les états accessibles depuis l'initial ET co-accessibles (pouvant atteindre un final).
+
+#### 8. Produit cartésien
+- `produit_automates(automate1, automate2)` : Calcule le produit de deux automates (intersection des langages). Les états du produit sont des paires d'états, et les transitions sont synchronisées sur l'alphabet commun.
+
+#### 9. Lecture et sauvegarde
+- `lire_automate(nom_fichier)` : Lit un automate depuis un fichier texte au format décrit ci-dessous.
+- `sauvegarder_automate(automate, nom_fichier)` : Sauvegarde un automate dans un fichier texte.
+
+#### 10. Menu interactif et démonstrations
+- Plusieurs fonctions `use_case_*` illustrent chaque opération (affichage, test, déterminisation, etc.) et sont accessibles via un menu interactif dans le terminal.
+- La fonction `main()` gère le menu, l'affichage des choix et l'exécution des démonstrations.
+
+### Structure du menu
+Le menu propose les opérations suivantes :
+1. Afficher transitions
+2. Fonction accepter
+3. Vérifier si un automate est complet
+4. Rendre un automate complet
+5. Déterminiser
+6. Éliminer epsilon
+7. Lire/Sauvegarder automate
+8. Nettoyer automate
+9. Produit de deux automates
+10. Concaténation de deux automates
+0. Quitter
+
+Chaque choix lance une démonstration ou une opération sur des exemples intégrés ou des fichiers présents dans le dossier.
+
+## Prérequis
+- Python 3.7+ (script écrit en Python pur, pas de dépendances externes).
+
+## Utilisation
+1. Ouvrir un terminal dans le dossier contenant `automathwil.py`.
+2. Lancer le script :
+
+```bash
+python automathwil.py
+```
+
+3. Le script affiche un menu interactif. Choisissez un numéro pour exécuter une démonstration (ex. déterminisation, élimination d'epsilon, concaténation, etc.).
+
+### Exemple d'exécution
+
+```
+Bienvenue dans Automate!
+============================================================
+MENU - Automate
+============================================================
+  1: Afficher transitions
+  2: fonction accepter
+  ...
+  0: Quitter
+============================================================
+Entrez votre choix: 5
+--- Déterminiser (format dict transitions) ---
+Automate non-déterministe:
+q0 --a--> [q0, q1]
+q0 --b--> [q0]
+...
+Automate déterminisé:
+q0 --a--> [q1]
+...
+États finaux déterminisés: ['q2']
+État initial déterminisé: ['q0']
+```
+
+## Format attendu pour `lire_automate`
+Le format texte attendu pour `lire_automate` (fichier) :
+- Ligne 1 : nombre d'états (entier)
+- Ligne 2 : nombre de symboles (entier)
+- Lignes 3.. : matrice de transitions (une ligne par état, valeurs entières séparées par espaces, `-1` pour absence de transition)
+- Avant-dernière ligne : liste des états finaux (séparés par espaces)
+- Dernière ligne : état initial (entier)
+
+Exemple minimal (fichier `automate_test.txt`) :
+
+```
+3
+2
+1 0
+-1 2
+2 -1
+2
+0
+```
+
+### Exemple de fichier automate1.txt
+```
+2
+2
+1 -1
+-1 0
+1
+0
+```
+
+## Structure du code
+- Fonctions utilitaires pour manipuler matrices et dictionnaires de transitions.
+- Plusieurs wrappers `use_case_*` qui montrent comment appeler chaque opération.
+- Menu principal `main()` pour tester interactivement.
+
+### Organisation des fichiers
+- `automathwil.py` : script principal, toutes les fonctions et le menu.
+- `automate1.txt`, `automate2.txt` : exemples de fichiers d'automates pour les opérations de lecture, concaténation, etc.
+
+## Extensibilité / Contributions
+- Le code est organisé pour être lisible et modulaire : vous pouvez ajouter des fonctions (ex. minimisation) et les rattacher au menu en ajoutant un `use_case` et une entrée dans `MENU`.
+
+### Ajouter une nouvelle opération
+Pour ajouter une nouvelle fonctionnalité :
+1. Créez une fonction Python (ex : `minimiser(automate)`).
+2. Créez un wrapper `use_case_minimiser()` pour la démonstration.
+3. Ajoutez une entrée dans le dictionnaire `MENU`.
+
+## Remarques
+- Certaines fonctions utilisent deux formats différents pour représenter un automate :
+  - Matrice (liste de listes) pour DFA.
+  - Dictionnaire de transitions (clé `(etat, symbole)` → liste d'états) pour NFA/epsilon.
+- Le script inclut des démonstrations et des conversions entre ces représentations.
+
+### Concepts clés
+- **DFA (Automate déterministe)** : chaque état et symbole a une transition unique ou aucune (`-1`).
+- **NFA (Automate non-déterministe)** : un état et symbole peuvent avoir plusieurs transitions (liste d'états).
+- **Epsilon (EPS)** : transitions qui ne consomment aucun symbole, utilisées pour concaténation ou simplification.
+- **Produit cartésien** : intersection des langages, utile pour opérations logiques sur automates.
+- **Nettoyage** : suppression des états inutiles pour simplifier l'automate.
